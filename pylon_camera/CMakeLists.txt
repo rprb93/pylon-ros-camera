@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 2.8.3)
 project(pylon_camera)
 
 add_definitions("-std=gnu++11")
@@ -51,7 +51,7 @@ roslint_cpp(
     src/${PROJECT_NAME}/${PROJECT_NAME}_node.cpp
     src/${PROJECT_NAME}/${PROJECT_NAME}_parameter.cpp
     src/${PROJECT_NAME}/${PROJECT_NAME}.cpp
-    src/${PROJECT_NAME}/set_device_user_id.cpp
+    src/${PROJECT_NAME}/write_device_user_id_to_camera.cpp
     src/${PROJECT_NAME}/IPConfigAuto.cpp
     include/${PROJECT_NAME}/binary_exposure_search.h
     include/${PROJECT_NAME}/encoding_conversions.h
@@ -62,7 +62,6 @@ roslint_cpp(
     include/${PROJECT_NAME}/internal/impl/${PROJECT_NAME}_base.hpp
     include/${PROJECT_NAME}/internal/impl/${PROJECT_NAME}_dart.hpp
     include/${PROJECT_NAME}/internal/impl/${PROJECT_NAME}_gige.hpp
-    include/${PROJECT_NAME}/internal/impl/${PROJECT_NAME}_gige_ace2.hpp
     include/${PROJECT_NAME}/internal/impl/${PROJECT_NAME}_usb.hpp
 )
 
@@ -107,8 +106,8 @@ target_link_libraries(
 )
 
 add_executable(
-    set_device_user_id
-     src/${PROJECT_NAME}/set_device_user_id.cpp
+    write_device_user_id_to_camera
+     src/${PROJECT_NAME}/write_device_user_id_to_camera.cpp
 )
 
 add_executable(
@@ -117,7 +116,7 @@ add_executable(
 )
 
 target_link_libraries(
-    set_device_user_id
+    write_device_user_id_to_camera
      ${Pylon_LIBRARIES}
 )
 
@@ -163,7 +162,7 @@ install(
      scripts/grab_and_save_image_action_server.py
      scripts/result_bag_to_action.py
      scripts/sequence_to_file.py
-     scripts/toggle_camera.py
+     scripts/toggle_camera
     DESTINATION
      ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
@@ -172,7 +171,7 @@ install(
     TARGETS
      ${PROJECT_NAME}
      ${PROJECT_NAME}_node
-     set_device_user_id
+     write_device_user_id_to_camera
      IPConfigAuto
     LIBRARY DESTINATION
      ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -206,3 +205,4 @@ foreach(child ${children})
   endif()
 endforeach()
 add_custom_target(dummy_${PROJECT_NAME} SOURCES ${${PROJECT_NAME}_extra_files})
+

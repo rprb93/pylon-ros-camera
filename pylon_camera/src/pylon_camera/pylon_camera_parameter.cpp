@@ -69,16 +69,7 @@ PylonCameraParameter::PylonCameraParameter() :
         inter_pkg_delay_(1000),
         startup_user_set_(""),
         shutter_mode_(SM_DEFAULT),
-        auto_flash_(false), 
-        grab_timeout_(500),
-        trigger_timeout_(5000),
-	grab_strategy_(0),
-        white_balance_auto_(0),
-        white_balance_auto_given_(false),
-        white_balance_ratio_red_(1.0),
-        white_balance_ratio_green_(1.0),
-        white_balance_ratio_blue_(1.0),
-        white_balance_ratio_given_(false)
+        auto_flash_(false)
 {}
 
 PylonCameraParameter::~PylonCameraParameter()
@@ -106,7 +97,7 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
     {
         int binning_x;
         nh.getParam("binning_x", binning_x);
-        ROS_DEBUG_STREAM("binning x is given and has value " << binning_x);
+        std::cout << "binning x is given and has value " << binning_x << std::endl;
         if ( binning_x > 32 || binning_x < 0 )
         {
             ROS_WARN_STREAM("Desired horizontal binning_x factor not in valid "
@@ -124,7 +115,7 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
     {
         int binning_y;
         nh.getParam("binning_y", binning_y);
-        ROS_DEBUG_STREAM("binning y is given and has value " << binning_y);
+        std::cout << "binning y is given and has value " << binning_y << std::endl;
         if ( binning_y > 32 || binning_y < 0 )
         {
             ROS_WARN_STREAM("Desired vertical binning_y factor not in valid "
@@ -168,28 +159,29 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
     if ( exposure_given_ )
     {
         nh.getParam("exposure", exposure_);
-        ROS_DEBUG_STREAM("exposure is given and has value " << exposure_);
+        std::cout << "exposure is given and has value " << exposure_ << std::endl;
     }
 
     gain_given_ = nh.hasParam("gain");
     if ( gain_given_ )
     {
         nh.getParam("gain", gain_);
-        ROS_DEBUG_STREAM("gain is given and has value " << gain_);
+        std::cout << "gain is given and has value " << gain_ << std::endl;
     }
 
     gamma_given_ = nh.hasParam("gamma");
     if ( gamma_given_ )
     {
         nh.getParam("gamma", gamma_);
-        ROS_DEBUG_STREAM("gamma is given and has value " << gamma_);
+        std::cout << "gamma is given and has value " << gamma_ << std::endl;
     }
 
     brightness_given_ = nh.hasParam("brightness");
     if ( brightness_given_ )
     {
         nh.getParam("brightness", brightness_);
-        ROS_DEBUG_STREAM("brightness is given and has value " << brightness_);
+        std::cout << "brightness is given and has value " << brightness_
+            << std::endl;
         if ( gain_given_ && exposure_given_ )
         {
             ROS_WARN_STREAM("Gain ('gain') and Exposure Time ('exposure') "
@@ -204,17 +196,17 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
             if ( nh.hasParam("brightness_continuous") )
             {
                 nh.getParam("brightness_continuous", brightness_continuous_);
-                ROS_DEBUG_STREAM("brightness is continuous");
+                std::cout << "brightness is continuous" << std::endl;
             }
             if ( nh.hasParam("exposure_auto") )
             {
                 nh.getParam("exposure_auto", exposure_auto_);
-                ROS_DEBUG_STREAM("exposure is set to auto");
+                std::cout << "exposure is set to auto" << std::endl;
             }
             if ( nh.hasParam("gain_auto") )
             {
                 nh.getParam("gain_auto", gain_auto_);
-                ROS_DEBUG_STREAM("gain is set to auto");
+                std::cout << "gain is set to auto" << std::endl;
             }
         }
     }
@@ -265,38 +257,6 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
     {
         nh.getParam("startup_user_set", startup_user_set_);
     }
-    if ( nh.hasParam("grab_timeout") )
-    {
-        nh.getParam("grab_timeout", grab_timeout_);
-    }
-    if ( nh.hasParam("trigger_timeout") )
-    {
-        nh.getParam("trigger_timeout", trigger_timeout_);
-    }
-    if ( nh.hasParam("white_balance_auto") )
-    {
-        nh.getParam("white_balance_auto", white_balance_auto_);
-        white_balance_auto_given_ = true;
-    }
-    if ( nh.hasParam("white_balance_ratio_red") )
-    {
-        nh.getParam("white_balance_ratio_red", white_balance_ratio_red_);
-        white_balance_ratio_given_ = true;
-    }
-    if ( nh.hasParam("white_balance_ratio_green") )
-    {
-        nh.getParam("white_balance_ratio_green", white_balance_ratio_green_);
-        white_balance_ratio_given_ = true;
-    }
-    if ( nh.hasParam("white_balance_ratio_blue") )
-    {
-        nh.getParam("white_balance_ratio_blue", white_balance_ratio_blue_);
-        white_balance_ratio_given_ = true;
-    }
-    if ( nh.hasParam("grab_strategy") )
-    {
-        nh.getParam("grab_strategy", grab_strategy_);
-    }
 
     nh.param<bool>("auto_flash", auto_flash_, false);
     nh.param<bool>("auto_flash_line_2", auto_flash_line_2_, true);
@@ -315,48 +275,52 @@ void PylonCameraParameter::adaptDeviceUserId(const ros::NodeHandle& nh, const st
 
 void PylonCameraParameter::validateParameterSet(const ros::NodeHandle& nh)
 {
-    if (!device_user_id_.empty())
+    if ( !device_user_id_.empty() )
     {
-        ROS_INFO_STREAM("Trying to connect the camera device with the following device user id: " << this->device_user_id_.c_str());
+        ROS_INFO_STREAM("Trying to open the following camera: "
+            << device_user_id_.c_str());
     }
     else
     {
-        ROS_INFO_STREAM("No Device User ID set -> Will connect the first available camera device");
+        ROS_INFO_STREAM("No Device User ID set -> Will open the camera device "
+                << "found first");
     }
 
-    if (frame_rate_ < 0 && frame_rate_ != -1)
+    if ( frame_rate_ < 0 && frame_rate_ != -1 )
     {
-        ROS_WARN_STREAM("The specified frame rate value - " << this->frame_rate_ << " Hz - is not valid!"
-        << "-> Will reset it to default value (5 Hz).");
+        ROS_WARN_STREAM("Unexpected frame rate (" << frame_rate_ << "). Will "
+                << "reset it to default value which is 5 Hz");
         frame_rate_ = 5.0;
         nh.setParam("frame_rate", frame_rate_);
     }
 
-    if (exposure_given_ && (exposure_ <= 0.0 || exposure_ > 1e7))
+    if ( exposure_given_ && ( exposure_ <= 0.0 || exposure_ > 1e7 ) )
     {
-        ROS_WARN_STREAM("The specified exposure value - " << this->exposure_ << " ms - is out of valid range!"
-        << "-> Will reset it to default value.");
+        ROS_WARN_STREAM("Desired exposure measured in microseconds not in "
+                << "valid range! Exposure time = " << exposure_ << ". Will "
+                << "reset it to default value!");
         exposure_given_ = false;
     }
 
-    if (gain_given_ && (gain_ < 0.0 || gain_ > 1.0))
+    if ( gain_given_ && ( gain_ < 0.0 || gain_ > 1.0 ) )
     {
-        ROS_WARN_STREAM("The specified gain value - " << this->gain_ << " % - is out of valid range!"
-        << "-> Will reset it to default value.");
+        ROS_WARN_STREAM("Desired gain (in percent) not in allowed range! "
+                << "Gain = " << gain_ << ". Will reset it to default value!");
         gain_given_ = false;
     }
 
-    if (brightness_given_ && (brightness_ < 0.0 || brightness_ > 255))
+    if ( brightness_given_ && ( brightness_ < 0.0 || brightness_ > 255 ) )
     {
-        ROS_WARN_STREAM("The specified brightness value - " << this->brightness_ << " - is out of valid range (0 to 255)!"
-        << "-> Will reset it to default value.");
+        ROS_WARN_STREAM("Desired brightness not in allowed range [0 - 255]! "
+               << "Brightness = " << brightness_ << ". Will reset it to "
+               << "default value!");
         brightness_given_ = false;
     }
 
-    if (exposure_search_timeout_ < 5.)
+    if ( exposure_search_timeout_ < 5.)
     {
-        ROS_WARN_STREAM("The specified exposure search timeout value - " << this->exposure_search_timeout_ << " - is too low!"
-        << "-> Exposure search may fail.");
+        ROS_WARN_STREAM("Low timeout for exposure search detected! Exposure "
+            << "search may fail.");
     }
     return;
 }

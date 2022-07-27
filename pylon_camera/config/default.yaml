@@ -10,7 +10,8 @@ device_user_id: ""
 #  from the ROS-CameraInfoManager:
 #  http://docs.ros.org/api/camera_info_manager/html/classcamera__info__manager_
 #  1_1CameraInfoManager.html#details
-camera_info_url: ""
+camera_info_url: "file:///home/rprb/catkin_ws/src/pylon-ros-camera/calibration/ost.yaml"
+#camera_info_url: ""
 
 #  The encoding of the pixels -- channel meaning, ordering, size
 #  taken from the list of strings in include/sensor_msgs/image_encodings.h
@@ -25,41 +26,18 @@ camera_info_url: ""
 #  (width / binning_x) x (height / binning_y).
 #  The default values binning_x = binning_y = 0 are considered the same
 #  as binning_x = binning_y = 1 (no subsampling).
-# binning_x: 1
-# binning_y: 1
+binning_x: 1
+binning_y: 1
 
 #  The desired publisher frame rate if listening to the topics.
 #  This parameter can only be set once at startup
 #  Calling the GrabImages-Action can result in a higher framerate
-frame_rate: 5.0
-
-trigger_timeout: 5000  # in ms
-grab_timeout: 500  # in ms
-
-# Camera grab strategy 
-# 0 : GrabStrategy_OneByOne
-# 1 : GrabStrategy_LatestImageOnly
-# 2 : GrabStrategy_LatestImages
-grab_strategy : 0
-
-##--White Balance Auto--##
-# Automatically corrects color shifts in images acquired. 0 = Off, 1 = Once, 2 = Continuous
-# white_balance_auto : 0 
-##----------------------##
-
-##--White balance--##
-# The Balance White camera feature allows you to manually correct color shifts so that white objects appear white in images acquired.
-# The increase or decrease in intensity is proportional. For example, if the balance ratio for a color is set to 1.2, the intensity of that color is increased by 20 %.
-# Activating these values will turn off the white_balance_auto.
-# white_balance_ratio_red : 1.0
-# white_balance_ratio_green : 1.0
-# white_balance_ratio_blue : 1.0
-##--------------##
+frame_rate: 15
 
 #  Mode of camera's shutter.
 #  The supported modes are "rolling", "global" and "global_reset"
 #  Default value is "" (empty) means default_shutter_mode
-#shutter_mode: ""
+shutter_mode: "rolling"
 
 ##########################################################################
 ######################## Image Intensity Settings ########################
@@ -71,11 +49,13 @@ grab_strategy : 0
 
 #  The exposure time in microseconds to be set after opening the camera.
 # exposure: 10000.0
+# exposure: 1000.0
 
 #  The target gain in percent of the maximal value the camera supports
 #  For USB-Cameras, the gain is in dB, for GigE-Cameras it is given in so
 #  called 'device specific units'.
 # gain: 0.5
+gain: 0.4
 
 #  Gamma correction of pixel intensity.
 #  Adjusts the brightness of the pixel values output by the camera's sensor
@@ -92,6 +72,7 @@ grab_strategy : 0
 #  gain AND exposure are given, it is not possible to reach the brightness,
 #  because both are assumed to be fix.
 # brightness: 100
+# brightness: 10000
 
 #  Only relevant, if 'brightness' is set:
 #  The brightness_continuous flag controls the auto brightness function.
@@ -126,6 +107,7 @@ grab_strategy : 0
 #  very high exposure times and resulting timeouts.
 #  A typical value for this upper bound is ~2000000us.
 # auto_exposure_upper_limit: 2000000.0
+# auto_exposure_upper_limit: 5000
 
 #  The MTU size. Only used for GigE cameras.
 #  To prevent lost frames configure the camera has to be configured

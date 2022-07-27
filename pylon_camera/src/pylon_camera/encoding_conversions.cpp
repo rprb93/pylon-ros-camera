@@ -29,8 +29,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-// Check notes in header file
-
 #include <ros/ros.h>
 #include <pylon_camera/encoding_conversions.h>
 #include <sensor_msgs/image_encodings.h>
@@ -114,22 +112,27 @@ bool ros2GenAPI(const std::string& ros_enc, std::string& gen_api_enc, bool is_16
     {
         gen_api_enc = "BayerGR16";
     }
+    /*
     else if ( ros_enc == sensor_msgs::image_encodings::YUV422 )
     {
         //  This is the UYVY version of YUV422 codec http://www.fourcc.org/yuv.php#UYVY
-        //  with an 8-bit depth. Is the same as basler provides
-        gen_api_enc = "YUV422Packed"; // --> UYVY implementation
+        //  with an 8-bit depth
+        gen_api_enc = "YCbCr422_8";
     }
+    */
     else
     {
-        /* No gen-api pendant existant for following ROS-encodings:*/
+        /* No gen-api pendant existant for following ROS-encodings:
+         * - sensor_msgs::image_encodings::BGRA8
+         * - sensor_msgs::image_encodings::BGR16
+         * - sensor_msgs::image_encodings::BGRA16
+         * - sensor_msgs::image_encodings::RGBA8
+         * - sensor_msgs::image_encodings::RGB16
+         * - sensor_msgs::image_encodings::RGBA16
+         * - sensor_msgs::image_encodings::YUV422
+         */
         return false;
     }
-
-    // Notes:
-    //gen_api_enc = "YCbCr422_8"; --> https://en.wikipedia.org/wiki/YCbCr currently not supported
-    //gen_api_enc = "YUV422_YUYV_Packed"; --> This is a YUVY implementation. Currently not supported.
-
     return true;
 }
 
@@ -203,24 +206,12 @@ bool genAPI2Ros(const std::string& gen_api_enc, std::string& ros_enc)
     {
         ros_enc = sensor_msgs::image_encodings::BAYER_GRBG16;
     }
-    else if ( gen_api_enc == "YUV422Packed" )
+    /*
+    else if ( gen_api_enc == "YCbCr422_8" )
     {
         ros_enc = sensor_msgs::image_encodings::YUV422;
     }
-
-    /*
-        // Currently no ROS equivalents:
-        else if ( gen_api_enc == "YUV422_YUYV_Packed" )
-        {
-            ros_enc = sensor_msgs::image_encodings::YUV422;
-        }
-        else if ( gen_api_enc == "YCbCr422_8" )
-        {
-            ros_enc = sensor_msgs::image_encodings::YUV422;
-        }
     */
-
-
     else
     {
         /* Unsupported are:
@@ -240,7 +231,6 @@ bool genAPI2Ros(const std::string& gen_api_enc, std::string& ros_enc)
          * - BayerGB12p
          * - BayerBG12p
          * - YCbCr422_8
-         * - YUV422_YUYV_Packed
          */
         return false;
     }
